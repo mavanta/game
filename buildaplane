@@ -1,0 +1,235 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local gameName = "Build A Plane"
+
+-- auto fly
+local function autoLaunchAndReturn()
+	local player = game.Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+
+
+	local rs = game:GetService("ReplicatedStorage")
+	local launch = rs.Remotes.LaunchEvents:WaitForChild("Launch")
+	local Return = rs.Remotes.LaunchEvents:WaitForChild("Return")
+    launch:FireServer()
+
+end
+
+-- fix lag
+local function optimize()
+	for _, obj in pairs(workspace:GetDescendants()) do
+
+		if obj:IsA("BasePart") then
+			obj.Material = Enum.Material.SmoothPlastic
+		end
+
+		if obj:IsA("Decal") or obj:IsA("Texture") then
+			obj:Destroy()
+		end
+	end
+end
+
+
+local runningFunctions = {
+	["Auto Dodge (beta)"] = false,
+	["Auto Launch and Return"] = false,
+}
+
+-- chỉ dẫn cho GUI biết khi nhấn vào tên chức năg, gọi hàm nào để thực hiện.
+local functionCallbacks = {
+	["Auto Launch and Return"] = function()
+		local name = "Auto Launch and Return"
+		runningFunctions[name] = not runningFunctions[name] -- toggle
+		if runningFunctions[name] then
+			spawn(function()
+				local player = game.Players.LocalPlayer
+				while runningFunctions[name] do
+					if player.Character and player.Character:FindFirstChild("Humanoid") then
+						autoLaunchAndReturn()
+						-- đợi nhân vật chết hoặc 2.5 giây
+						local died = false
+						local conn
+						conn = player.Character.Humanoid.Died:Connect(function()
+							died = true
+						end)
+
+						local timer = 0
+						while timer < 2.5 and not died do
+							wait(0.1)
+							timer = timer + 0.1
+						end
+						if conn then conn:Disconnect() end
+					else
+						wait(0.1) -- chờ character load lại
+					end
+				end
+			end)
+		end
+	end,
+	["Auto Dodge"] = function()
+	-- điền chức năng vào đây --
+	end,
+	["Bob's Blocks Shop"] = function()
+	-- điền chức năng vào đây --
+	end,
+	["Rejoin"] = function()
+	local TeleportService = game:GetService("TeleportService")
+	    TeleportService:Teleport(game.PlaceId, player)
+	end,
+	["Reduce Lag"] = function()
+		optimize()
+	end,
+	["Copy Discord Link"] = function()
+		setclipboard("https://discord.gg/592AGgZHm7")
+	end,
+}
+
+-- Hàm tạo GUI
+local function createHub()
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "BatcanHub"
+	screenGui.Parent = player:WaitForChild("PlayerGui")
+	screenGui.ResetOnSpawn = false
+
+	-- Main Frame
+	local mainFrame = Instance.new("Frame")
+	mainFrame.Size = UDim2.new(0, 500, 0, 300)
+	mainFrame.Position = UDim2.new(0.2, 0, 0.2, 0)
+	mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	mainFrame.Active = true
+	mainFrame.Draggable = true
+	mainFrame.Parent = screenGui
+
+	-- Tiêu đề
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1, -30, 0, 30)
+	title.Position = UDim2.new(0, 5, 0, 0)
+	title.BackgroundTransparency = 1
+	title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	title.Font = Enum.Font.SourceSansBold
+	title.TextSize = 18
+	title.Text = "Batcan Hub -- " .. gameName .. " --"
+	title.Parent = mainFrame
+
+	-- Nút X đóng
+	local closeBtn = Instance.new("TextButton")
+	closeBtn.Size = UDim2.new(0, 25, 0, 25)
+	closeBtn.Position = UDim2.new(1, -30, 0, 5)
+	closeBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+	closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	closeBtn.Font = Enum.Font.SourceSansBold
+	closeBtn.TextSize = 16
+	closeBtn.Text = "X"
+	closeBtn.Parent = mainFrame
+	local closeCorner = Instance.new("UICorner")
+	closeCorner.CornerRadius = UDim.new(0.5, 0)
+	closeCorner.Parent = closeBtn
+
+	-- Menu bên trái
+	local menuFrame = Instance.new("Frame")
+	menuFrame.Size = UDim2.new(0, 100, 1, -30)
+	menuFrame.Position = UDim2.new(0, 0, 0, 30)
+	menuFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	menuFrame.Parent = mainFrame
+
+	-- Khu chức năng bên phải
+	local contentFrame = Instance.new("Frame")
+	contentFrame.Size = UDim2.new(1, -100, 1, -30)
+	contentFrame.Position = UDim2.new(0, 100, 0, 30)
+	contentFrame.BackgroundTransparency = 1
+	contentFrame.Parent = mainFrame
+
+	-- Toggle nhỏ BCH (round button)
+	local toggleBtn = Instance.new("TextButton")
+	toggleBtn.Size = UDim2.new(0, 40, 0, 40)
+	toggleBtn.Position = UDim2.new(0, 10, 0, 10)
+	toggleBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+	toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	toggleBtn.Font = Enum.Font.SourceSansBold
+	toggleBtn.TextSize = 16
+	toggleBtn.Text = "BCH"
+	toggleBtn.Active = true
+	toggleBtn.Draggable = true
+	toggleBtn.Parent = screenGui
+	toggleBtn.Visible = false
+	local toggleCorner = Instance.new("UICorner")
+	toggleCorner.CornerRadius = UDim.new(1, 0)
+	toggleCorner.Parent = toggleBtn
+
+	-- Dữ liệu menu + chức năng
+	local menuData = {
+		Auto = { "Auto Launch and Return", "Auto Dodge (beta)" },
+		Shop = { "Bob's Blocks Shop" },
+		Misc = { "Reduce Lag", "Rejoin" },
+        Update = { "Join discord to get new upd", "Copy Discord Link"}
+	}
+
+	-- Hàm hiển thị chức năng
+	local function showFunctions(category)
+		contentFrame:ClearAllChildren()
+		for i, funcName in ipairs(menuData[category]) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(0, 150, 0, 30)
+			btn.Position = UDim2.new(0, 10, 0, (i - 1) * 35)
+			btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+			btn.Font = Enum.Font.SourceSans
+			btn.TextSize = 14
+			btn.Text = funcName
+			btn.Parent = contentFrame
+
+			local funcCorner = Instance.new("UICorner")
+			funcCorner.CornerRadius = UDim.new(0.2, 0)
+			funcCorner.Parent = btn
+
+			btn.MouseButton1Click:Connect(function()
+				-- If a callback exists for this function, call it
+				if functionCallbacks[funcName] then
+					functionCallbacks[funcName]()
+				else
+					print("Clicked:", funcName)
+				end
+			end)
+		end
+	end
+
+	-- Tạo nút menu
+	local yPos = 0
+	for category, _ in pairs(menuData) do
+		local btn = Instance.new("TextButton")
+		btn.Size = UDim2.new(1, 0, 0, 30)
+		btn.Position = UDim2.new(0, 0, 0, yPos)
+		btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		btn.Font = Enum.Font.SourceSansBold
+		btn.TextSize = 14
+		btn.Text = category
+		btn.Parent = menuFrame
+
+		local menuCorner = Instance.new("UICorner")
+		menuCorner.CornerRadius = UDim.new(0.2, 0)
+		menuCorner.Parent = btn
+
+		btn.MouseButton1Click:Connect(function()
+			showFunctions(category)
+		end)
+
+		yPos = yPos + 35
+	end
+
+	-- Sự kiện đóng/mở GUI
+	closeBtn.MouseButton1Click:Connect(function()
+		mainFrame.Visible = false
+		toggleBtn.Visible = true
+	end)
+
+	toggleBtn.MouseButton1Click:Connect(function()
+		mainFrame.Visible = true
+		toggleBtn.Visible = false
+	end)
+
+	-- Mặc định mở Misc
+	showFunctions("Misc")
+end
+
+createHub()
