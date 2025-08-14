@@ -28,7 +28,7 @@ local function optimize()
 		end
 	end
 end
-
+local createdButtons = {}
 
 local runningFunctions = {
 	["Auto Dodge (beta)"] = false,
@@ -66,8 +66,42 @@ local functionCallbacks = {
 			end)
 		end
 	end,
-	["Auto Dodge"] = function()
-	-- điền chức năng vào đây --
+	["Auto Dodge (beta)"] = function()
+		local name = "Auto Dodge (beta)"
+		runningFunctions[name] = not runningFunctions[name] -- toggle
+		if runningFunctions[name] then
+			spawn(function()
+				local player = game.Players.LocalPlayer
+				while runningFunctions[name] do
+					local character = player.Character
+					if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") then
+						local hrp = character.HumanoidRootPart
+						local humanoid = character.Humanoid
+
+						-- Raycast thẳng phía trước
+						local rayOrigin = hrp.Position
+						local rayDirection = hrp.CFrame.LookVector * 50 -- 40-50 studs
+						local raycastParams = RaycastParams.new()
+						raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+						raycastParams.FilterDescendantsInstances = {character}
+
+						local rayResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+						if rayResult then
+							-- chọn hướng trái hoặc phải
+							local dodgeDir = math.random(0,1) == 0 and -1 or 1
+							local startTime = tick()
+							local duration = 1 -- 1 giây
+							while tick() - startTime < duration and runningFunctions[name] do
+								local moveVector = hrp.CFrame.RightVector * dodgeDir
+								humanoid:Move(moveVector, false)
+								wait(0.03)
+							end
+						end
+					end
+					wait(0.1)
+				end
+			end)
+		end
 	end,
 	["Bob's Blocks Shop"] = function()
 	-- điền chức năng vào đây --
@@ -165,6 +199,7 @@ local function createHub()
 	}
 
 	-- Hàm hiển thị chức năng
+	 -- lưu các nút để chỉnh text sau này
 	local function showFunctions(category)
 		contentFrame:ClearAllChildren()
 		for i, funcName in ipairs(menuData[category]) do
@@ -181,11 +216,19 @@ local function createHub()
 			local funcCorner = Instance.new("UICorner")
 			funcCorner.CornerRadius = UDim.new(0.2, 0)
 			funcCorner.Parent = btn
-
+			createdButtons[funcName] = btn
 			btn.MouseButton1Click:Connect(function()
-				-- If a callback exists for this function, call it
 				if functionCallbacks[funcName] then
-					functionCallbacks[funcName]()
+					functionCallbacks[funcName]() -- gọi chức năng
+
+					-- nếu nút này có toggle, update [ON]
+					if runningFunctions[funcName] ~= nil then
+						if runningFunctions[funcName] then
+							btn.Text = funcName .. " [ON]"
+						else
+							btn.Text = funcName
+						end
+					end
 				else
 					print("Clicked:", funcName)
 				end
