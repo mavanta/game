@@ -78,31 +78,27 @@ btn1.Font = Enum.Font.SourceSansBold
 btn1.TextSize = 14
 btn1.Parent = frame
 
+local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
+
 -- skill 
 local autoAttack = false
 local autoSkill = false
+local autoAttackConnection
+local autoSkillConnection
 
 btn1.MouseButton1Click:Connect(function()
-	if autoAttack == false then
+	if not autoAttackConnection then
 		btn1.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-		autoAttack = true
+		autoAttackConnection = task.spawn(function()
+			while task.wait(0.1) do
+				Remote:FireServer(buffer.fromstring("\a\004\001"), {tick()})
+			end
+		end)
 	else
 		btn1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-		autoAttack = false
+		autoAttackConnection = nil -- hủy
 	end
 end)
-if autoAttack == true then
-	local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
-
-	local args = {
-		buffer.fromstring("\a\004\001"),
-		{1755794295.606943}
-	}
-
-	while task.wait(0.1) do
-		Remote:FireServer(unpack(args))
-	end
-end
 
 -- AutoSkill
 local btn2 = Instance.new("TextButton")
@@ -116,35 +112,20 @@ btn2.TextSize = 14
 btn2.Parent = frame
 
 btn2.MouseButton1Click:Connect(function()
-	if autoSkill == false then
+	if not autoSkillConnection then
 		btn2.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-		autoSkill = true
+		autoSkillConnection = task.spawn(function()
+			while task.wait(1) do
+				Remote:FireServer(buffer.fromstring("\a\003\001"), {tick()})
+				Remote:FireServer(buffer.fromstring("\a\005\001"), {tick()})
+				Remote:FireServer(buffer.fromstring("\a\006\001"), {tick()})
+			end
+		end)
 	else
 		btn2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-		autoSkill = false
+		autoSkillConnection = nil
 	end
 end)
-
-if autoSkill == true then
-	local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
-
-	local args = {
-		buffer.fromstring("\a\003\001"),
-		{1756364254.43282}
-	}
-	local args2 = {
-		buffer.fromstring("\a\005\001")
-		{1756364313.48059}
-	}
-	local args3 = {
-		buffer.fromstring("\a\006\001"),
-		{1756364316.852401}
-	}
-
-	while task.wait(0.1) do
-		Remote:FireServer(unpack(args, args2))
-	end
-end
 
 -- BringZombie
 local btn3 = Instance.new("TextButton")
