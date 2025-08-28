@@ -136,7 +136,7 @@ btn2.MouseButton1Click:Connect(function()
 	end
 end)
 
--- BringZombie
+-- Open all doors
 local btn3 = Instance.new("TextButton")
 btn3.Size = UDim2.new(1, -20, 0, 40)
 btn3.Position = UDim2.new(0, 10, 0, 140)
@@ -148,10 +148,14 @@ btn3.TextSize = 14
 btn3.Parent = frame
 
 btn3.MouseButton1Click:Connect(function()
-	if btn3.BackgroundColor3 == Color3.fromRGB(255, 0, 0) then
-		btn3.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-	else
-		btn3.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	while task.wait(0.1) do
+	local args = {
+		buffer.fromstring("\006\001"),
+		{
+			workspace:WaitForChild("School"):WaitForChild("Doors"):WaitForChild("HallwayDoor")
+		}
+	}
+	game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable"):FireServer(unpack(args))
 	end
 end)
 
