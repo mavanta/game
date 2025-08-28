@@ -1,107 +1,114 @@
-local Players = game:GetService("Players")
-local plr = Players.LocalPlayer
-local RS = game:GetService("ReplicatedStorage")
+local player = game:GetService("Players")
+local plr = player.LocalPlayer
+local gui = game:GetService("StarterGui")
 
--- GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "DraggableGUI"
 screenGui.ResetOnSpawn = false
-screenGui.Parent = plr:WaitForChild("PlayerGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0,200,0,260)
-frame.Position = UDim2.new(0.5,-100,0.5,-130)
-frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
+frame.Size = UDim2.new(0, 200, 0, 270)
+frame.Position = UDim2.new(0.5, -100, 0.5, -130)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 frame.Active = true
 frame.Draggable = true
 frame.Parent = screenGui
 
 local titleBar = Instance.new("TextLabel")
-titleBar.Size = UDim2.new(1,0,0,30)
-titleBar.BackgroundColor3 = Color3.fromRGB(25,25,25)
-titleBar.Text = "BCB|HuntyZombie 1.6"
-titleBar.TextColor3 = Color3.new(1,1,1)
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+titleBar.Text = "BCB-Hunty Zombie 1.6"
+titleBar.TextColor3 = Color3.new(1, 1, 1)
 titleBar.Font = Enum.Font.SourceSansBold
 titleBar.TextSize = 18
 titleBar.Parent = frame
+titleBar.TextXAlignment = Enum.TextXAlignment.Left
+local ytb = Instance.new("TextLabel")
+ytb.Size = UDim2.new(1, -20, 0, 40)
+ytb.Position = UDim2.new(0, 10, 0, 220)
+ytb.BackgroundTransparency = 1
+ytb.Text = "Youtube : @batcanboard"
+ytb.TextColor3 = Color3.new(1, 1, 1)
+ytb.Font = Enum.Font.SourceSansBold
+ytb.TextSize = 15
+ytb.Parent = frame
+ytb.ZIndex = 9999
 
--- Nút thu nhỏ
+-- nút thu nhỏ
 local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0,30,0,30)
-toggleButton.Position = UDim2.new(1,-30,0,0)
-toggleButton.BackgroundColor3 = Color3.fromRGB(50,50,50)
+toggleButton.Size = UDim2.new(0, 30, 0, 30)
+toggleButton.Position = UDim2.new(1, -30, 0, 0)
+toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 toggleButton.Text = "-"
-toggleButton.TextColor3 = Color3.new(1,1,1)
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
 toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.TextSize = 20
 toggleButton.Parent = titleBar
 
 local hidden = false
 toggleButton.MouseButton1Click:Connect(function()
-	hidden = not hidden
-	for _, obj in pairs(frame:GetChildren()) do
-		if obj ~= titleBar then
-			obj.Visible = not hidden
+	if hidden == false then
+		for _, obj in pairs(frame:GetChildren()) do
+			if obj ~= titleBar then
+				obj.Visible = false
+			end
 		end
+		frame.Size = UDim2.new(0, 200, 0, 30)
+		toggleButton.Text = "+"
+		hidden = true
+	else
+		for _, obj in pairs(frame:GetChildren()) do
+			obj.Visible = true
+		end
+		frame.Size = UDim2.new(0, 200, 0, 260)
+		toggleButton.Text = "-"
+		hidden = false
 	end
-	frame.Size = hidden and UDim2.new(0,200,0,30) or UDim2.new(0,200,0,260)
-	toggleButton.Text = hidden and "+" or "-"
 end)
 
--- Biến toggle và thread
-local autoAttackEnabled, autoAttackThread = false, nil
-local autoSkillEnabled, autoSkillThread = false, nil
-
--- Hàm AutoAttack
-local function autoAttack()
-	if autoAttackThread then return end
-	autoAttackThread = task.spawn(function()
-		local Remote = RS:WaitForChild("ByteNetReliable")
-		while autoAttackEnabled do
-			Remote:FireServer(buffer.fromstring("\a\004\001"), {tick()})
-			task.wait(0.1)
-		end
-		autoAttackThread = nil
-	end)
-end
-
--- Hàm AutoSkill
-local function autoSkill()
-	if autoSkillThread then return end
-	autoSkillThread = task.spawn(function()
-		local Remote = RS:WaitForChild("ByteNetReliable")
-		while autoSkillEnabled do
-			Remote:FireServer(buffer.fromstring("\a\003\001"), {tick()})
-			Remote:FireServer(buffer.fromstring("\a\005\001"), {tick()})
-			Remote:FireServer(buffer.fromstring("\a\006\001"), {tick()})
-			task.wait(1)
-		end
-		autoSkillThread = nil
-	end)
-end
-
--- Nút AutoAttack
+-- AutoAttack
 local btn1 = Instance.new("TextButton")
-btn1.Size = UDim2.new(1,-20,0,40)
-btn1.Position = UDim2.new(0,10,0,40)
-btn1.BackgroundColor3 = Color3.fromRGB(255,0,0)
+btn1.Size = UDim2.new(1, -20, 0, 40)
+btn1.Position = UDim2.new(0, 10, 0, 40)
+btn1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 btn1.Text = "Auto Attack"
 btn1.TextColor3 = Color3.new(1,1,1)
 btn1.Font = Enum.Font.SourceSansBold
 btn1.TextSize = 14
 btn1.Parent = frame
 
-btn1.MouseButton1Click:Connect(function()
-	autoAttackEnabled = not autoAttackEnabled
-	btn1.BackgroundColor3 = autoAttackEnabled and Color3.fromRGB(0,170,0) or Color3.fromRGB(255,0,0)
-	if autoAttackEnabled then autoAttack() end
-end)
+-- skill 
+local autoAttack = false
+local autoSkill = false
 
--- Nút AutoSkill
+btn1.MouseButton1Click:Connect(function()
+	if autoAttack == false then
+		btn1.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+		autoAttack = true
+	else
+		btn1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+		autoAttack = false
+	end
+end)
+if autoAttack == true then
+	local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
+
+	local args = {
+		buffer.fromstring("\a\004\001"),
+		{1755794295.606943}
+	}
+
+	while task.wait(0.1) do
+		Remote:FireServer(unpack(args))
+	end
+end
+
+-- AutoSkill
 local btn2 = Instance.new("TextButton")
-btn2.Size = UDim2.new(1,-20,0,40)
-btn2.Position = UDim2.new(0,10,0,90)
-btn2.BackgroundColor3 = Color3.fromRGB(255,0,0)
+btn2.Size = UDim2.new(1, -20, 0, 40)
+btn2.Position = UDim2.new(0, 10, 0, 90)
+btn2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 btn2.Text = "Auto Skill"
 btn2.TextColor3 = Color3.new(1,1,1)
 btn2.Font = Enum.Font.SourceSansBold
@@ -109,35 +116,60 @@ btn2.TextSize = 14
 btn2.Parent = frame
 
 btn2.MouseButton1Click:Connect(function()
-	autoSkillEnabled = not autoSkillEnabled
-	btn2.BackgroundColor3 = autoSkillEnabled and Color3.fromRGB(0,170,0) or Color3.fromRGB(255,0,0)
-	if autoSkillEnabled then autoSkill() end
+	if autoSkill == false then
+		btn2.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+		autoSkill = true
+	else
+		btn2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+		autoSkill = false
+	end
 end)
 
--- Nút 3: Bring Zombie (beta)
+if autoSkill == true then
+	local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
+
+	local args = {
+		buffer.fromstring("\a\003\001"),
+		{1756364254.43282}
+	}
+	local args2 = {
+		buffer.fromstring("\a\005\001")
+		{1756364313.48059}
+	}
+	local args3 = {
+		buffer.fromstring("\a\006\001"),
+		{1756364316.852401}
+	}
+
+	while task.wait(0.1) do
+		Remote:FireServer(unpack(args, args2))
+	end
+end
+
+-- BringZombie
 local btn3 = Instance.new("TextButton")
-btn3.Size = UDim2.new(1,-20,0,40)
-btn3.Position = UDim2.new(0,10,0,140)
-btn3.BackgroundColor3 = Color3.fromRGB(255,0,0)
-btn3.Text = "Bring Zombie (beta)"
+btn3.Size = UDim2.new(1, -20, 0, 40)
+btn3.Position = UDim2.new(0, 10, 0, 140)
+btn3.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+btn3.Text = "Open All Door"
 btn3.TextColor3 = Color3.new(1,1,1)
 btn3.Font = Enum.Font.SourceSansBold
 btn3.TextSize = 14
 btn3.Parent = frame
 
 btn3.MouseButton1Click:Connect(function()
-	if btn3.BackgroundColor3 == Color3.fromRGB(255,0,0) then
-		btn3.BackgroundColor3 = Color3.fromRGB(0,170,0)
+	if btn3.BackgroundColor3 == Color3.fromRGB(255, 0, 0) then
+		btn3.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
 	else
-		btn3.BackgroundColor3 = Color3.fromRGB(255,0,0)
+		btn3.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 	end
 end)
 
--- Nút 4: Copy Discord
+-- Discord
 local btn4 = Instance.new("TextButton")
-btn4.Size = UDim2.new(1,-20,0,40)
-btn4.Position = UDim2.new(0,10,0,190)
-btn4.BackgroundColor3 = Color3.fromRGB(255,0,0)
+btn4.Size = UDim2.new(1, -20, 0, 40)
+btn4.Position = UDim2.new(0, 10, 0, 190)
+btn4.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 btn4.Text = "Join Discord Bro 🔥"
 btn4.TextColor3 = Color3.new(1,1,1)
 btn4.Font = Enum.Font.SourceSansBold
@@ -145,10 +177,10 @@ btn4.TextSize = 14
 btn4.Parent = frame
 
 btn4.MouseButton1Click:Connect(function()
-	if btn4.BackgroundColor3 == Color3.fromRGB(255,0,0) then
+	if btn4.BackgroundColor3 == Color3.fromRGB(255, 0, 0) then
 		btn4.Text = "Copied"
 		setclipboard("https://discord.gg/592AGgZHm7")
-		task.wait(2)
+        wait(2)
 		btn4.Text = "Join Discord Bro 🔥"
 	end
 end)
