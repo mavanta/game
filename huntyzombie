@@ -8,7 +8,7 @@ screenGui.ResetOnSpawn = false
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 270)
+frame.Size = UDim2.new(0, 200, 0, 260)
 frame.Position = UDim2.new(0.5, -100, 0.5, -130)
 frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 frame.Active = true
@@ -18,22 +18,22 @@ frame.Parent = screenGui
 local titleBar = Instance.new("TextLabel")
 titleBar.Size = UDim2.new(1, 0, 0, 30)
 titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-titleBar.Text = "BCB-Hunty Zombie 1.6"
+titleBar.Text = "BCB - Hunty Zombie 1.6"
 titleBar.TextColor3 = Color3.new(1, 1, 1)
 titleBar.Font = Enum.Font.SourceSansBold
 titleBar.TextSize = 18
 titleBar.Parent = frame
 titleBar.TextXAlignment = Enum.TextXAlignment.Left
+
 local ytb = Instance.new("TextLabel")
-ytb.Size = UDim2.new(1, -20, 0, 40)
+ytb.Size = UDim2.new(1, 0, 0, 20)
 ytb.Position = UDim2.new(0, 10, 0, 220)
 ytb.BackgroundTransparency = 1
-ytb.Text = "Youtube : @batcanboard"
+ytb.Text = "Youtube: @batcanboard"
 ytb.TextColor3 = Color3.new(1, 1, 1)
 ytb.Font = Enum.Font.SourceSansBold
-ytb.TextSize = 15
+ytb.TextSize = 16
 ytb.Parent = frame
-ytb.ZIndex = 9999
 
 -- nút thu nhỏ
 local toggleButton = Instance.new("TextButton")
@@ -71,7 +71,7 @@ end)
 local btn1 = Instance.new("TextButton")
 btn1.Size = UDim2.new(1, -20, 0, 40)
 btn1.Position = UDim2.new(0, 10, 0, 40)
-btn1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+btn1.BackgroundColor3 = Color3.fromRGB(89, 89, 89)
 btn1.Text = "Auto Attack"
 btn1.TextColor3 = Color3.new(1,1,1)
 btn1.Font = Enum.Font.SourceSansBold
@@ -80,23 +80,26 @@ btn1.Parent = frame
 
 local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
 
--- skill 
-local autoAttack = false
-local autoSkill = false
-local autoAttackConnection
-local autoSkillConnection
+local function autoskill()
+	local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
+	task.spawn(function()
+		while autoSkillEnabled do
+			Remote:FireServer(buffer.fromstring("\a\003\001"), {tick()})
+			Remote:FireServer(buffer.fromstring("\a\005\001"), {tick()})
+			Remote:FireServer(buffer.fromstring("\a\006\001"), {tick()})
+			task.wait(1)
+		end
+	end)
+end
 
 btn1.MouseButton1Click:Connect(function()
-	if not autoAttackConnection then
-		btn1.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-		autoAttackConnection = task.spawn(function()
-			while task.wait(0.1) do
-				Remote:FireServer(buffer.fromstring("\a\004\001"), {tick()})
-			end
-		end)
-	else
-		btn1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-		autoAttackConnection = nil -- hủy
+	local args = {
+		buffer.fromstring("\a\004\001"),
+		{1755794295.606943}
+	}
+
+	while task.wait(0.1) do
+		Remote:FireServer(unpack(args))
 	end
 end)
 
@@ -112,18 +115,24 @@ btn2.TextSize = 14
 btn2.Parent = frame
 
 btn2.MouseButton1Click:Connect(function()
-	if not autoSkillConnection then
-		btn2.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-		autoSkillConnection = task.spawn(function()
-			while task.wait(1) do
-				Remote:FireServer(buffer.fromstring("\a\003\001"), {tick()})
-				Remote:FireServer(buffer.fromstring("\a\005\001"), {tick()})
-				Remote:FireServer(buffer.fromstring("\a\006\001"), {tick()})
-			end
-		end)
-	else
-		btn2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-		autoSkillConnection = nil
+	local args2 = {
+		buffer.fromstring("\a\003\001"),
+		{1756364254.43282}
+	}
+	local args3 = {
+		buffer.fromstring("\a\005\001")
+		{1756364313.48059}
+	}
+	local args4 = {
+		buffer.fromstring("\a\006\001")
+		{1756364316.852401}
+
+	}
+
+	while task.wait(0.1) do
+		Remote:FireServer(unpack(args2))
+		Remote:FireServer(unpack(args3))
+		Remote:FireServer(unpack(args4))
 	end
 end)
 
