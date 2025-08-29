@@ -1,7 +1,7 @@
 local player = game:GetService("Players")
 local plr = player.LocalPlayer
 local gui = game:GetService("StarterGui")
-local char = player.Character or player.CharacterAdded:Wait()
+local char = plr.Character or plr.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 
 local screenGui = Instance.new("ScreenGui")
