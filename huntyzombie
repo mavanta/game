@@ -136,7 +136,7 @@ btn2.MouseButton1Click:Connect(function()
 	end
 end)
 
--- Open all doors
+-- GodMode
 local btn3 = Instance.new("TextButton")
 btn3.Size = UDim2.new(1, -20, 0, 40)
 btn3.Position = UDim2.new(0, 10, 0, 140)
@@ -148,12 +148,9 @@ btn3.TextSize = 14
 btn3.Parent = frame
 
 btn3.MouseButton1Click:Connect(function()
-	while task.wait(0.1) do
+	while task.wait(1) do
 	local args = {
-		buffer.fromstring("\006\001"),
-		{
-			workspace:WaitForChild("School"):WaitForChild("Doors"):WaitForChild("HallwayDoor")
-		}
+		buffer.fromstring("\v"),
 	}
 	game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable"):FireServer(unpack(args))
 	end
