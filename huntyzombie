@@ -130,7 +130,7 @@ local function createPlatform()
 	platform.CanCollide = true
 	platform.Transparency = 1 -- tàng hình
 	platform.Parent = workspace
-	platform.CFrame = hrp.CFrame * CFrame.new(0, -4, 0) -- ngay dưới chân
+	platform.CFrame = hrp.CFrame * CFrame.new(0, -1, 0) -- ngay dưới chân
 end
 local function togglePlatform()
 	toggled = not toggled
