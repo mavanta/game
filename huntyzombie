@@ -27,7 +27,7 @@ titleBar.TextXAlignment = Enum.TextXAlignment.Left
 
 local ytb = Instance.new("TextLabel")
 ytb.Size = UDim2.new(1, 0, 0, 20)
-ytb.Position = UDim2.new(0, 10, 0, 220)
+ytb.Position = UDim2.new(0, 10, 0, 240)
 ytb.BackgroundTransparency = 1
 ytb.Text = "Youtube: @batcanboard"
 ytb.TextColor3 = Color3.new(1, 1, 1)
