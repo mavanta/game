@@ -1,6 +1,8 @@
 local player = game:GetService("Players")
 local plr = player.LocalPlayer
 local gui = game:GetService("StarterGui")
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "DraggableGUI"
@@ -91,7 +93,7 @@ btn1.MouseButton1Click:Connect(function()
 	end
 end)
 
--- AutoSkill
+-- Auto Collect Coin
 local btn2 = Instance.new("TextButton")
 btn2.Size = UDim2.new(1, -20, 0, 40)
 btn2.Position = UDim2.new(0, 10, 0, 90)
@@ -102,24 +104,28 @@ btn2.Font = Enum.Font.SourceSansBold
 btn2.TextSize = 14
 btn2.Parent = frame
 
--- Speed Boost
+-- bring all zombie
 local btn3 = Instance.new("TextButton")
 btn3.Size = UDim2.new(1, -20, 0, 40)
 btn3.Position = UDim2.new(0, 10, 0, 140)
 btn3.BackgroundColor3 = Color3.fromRGB(89, 89, 89)
-btn3.Text = "⚡Speed Boost"
+btn3.Text = "⚡Bring All Zombie"
 btn3.TextColor3 = Color3.new(1,1,1)
 btn3.Font = Enum.Font.SourceSansBold
 btn3.TextSize = 14
 btn3.Parent = frame
 
 btn3.MouseButton1Click:Connect(function()
-    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
-    if humanoid then
-		while task.wait(0.2) do
-        	humanoid.WalkSpeed = 32
+	hrp.CFrame = hrp.CFrame + Vector3.new(0, 5, 0)
+	hrp.Anchored = true
+    local entities = workspace:WaitForChild("Entities")
+	for _, obj in ipairs(entities:GetDescendants()) do
+		if obj:IsA("BasePart") then
+			obj.CFrame = hrp.CFrame * CFrame.new(0, -3, 0) -- gần chân (có thể chỉnh)
 		end
-    end
+	end
+	task.wait(5)
+	hrp.Anchored = false
 end)
 
 -- Discord
