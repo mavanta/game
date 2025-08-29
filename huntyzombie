@@ -67,30 +67,18 @@ toggleButton.MouseButton1Click:Connect(function()
 	end
 end)
 
+local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
+
 -- AutoAttack
 local btn1 = Instance.new("TextButton")
 btn1.Size = UDim2.new(1, -20, 0, 40)
 btn1.Position = UDim2.new(0, 10, 0, 40)
 btn1.BackgroundColor3 = Color3.fromRGB(89, 89, 89)
-btn1.Text = "Auto Attack"
+btn1.Text = "⚔️Auto Attack"
 btn1.TextColor3 = Color3.new(1,1,1)
 btn1.Font = Enum.Font.SourceSansBold
 btn1.TextSize = 14
 btn1.Parent = frame
-
-local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
-
-local function autoskill()
-	local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
-	task.spawn(function()
-		while autoSkillEnabled do
-			Remote:FireServer(buffer.fromstring("\a\003\001"), {tick()})
-			Remote:FireServer(buffer.fromstring("\a\005\001"), {tick()})
-			Remote:FireServer(buffer.fromstring("\a\006\001"), {tick()})
-			task.wait(1)
-		end
-	end)
-end
 
 btn1.MouseButton1Click:Connect(function()
 	local args = {
@@ -107,60 +95,38 @@ end)
 local btn2 = Instance.new("TextButton")
 btn2.Size = UDim2.new(1, -20, 0, 40)
 btn2.Position = UDim2.new(0, 10, 0, 90)
-btn2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-btn2.Text = "Auto Skill"
+btn2.BackgroundColor3 = Color3.fromRGB(89, 89, 89)
+btn2.Text = "Auto Collect Coin (mặc định)"
 btn2.TextColor3 = Color3.new(1,1,1)
 btn2.Font = Enum.Font.SourceSansBold
 btn2.TextSize = 14
 btn2.Parent = frame
 
-btn2.MouseButton1Click:Connect(function()
-	local args2 = {
-		buffer.fromstring("\a\003\001"),
-		{1756364254.43282}
-	}
-	local args3 = {
-		buffer.fromstring("\a\005\001")
-		{1756364313.48059}
-	}
-	local args4 = {
-		buffer.fromstring("\a\006\001")
-		{1756364316.852401}
-
-	}
-
-	while task.wait(0.1) do
-		Remote:FireServer(unpack(args2))
-		Remote:FireServer(unpack(args3))
-		Remote:FireServer(unpack(args4))
-	end
-end)
-
--- GodMode
+-- Speed Boost
 local btn3 = Instance.new("TextButton")
 btn3.Size = UDim2.new(1, -20, 0, 40)
 btn3.Position = UDim2.new(0, 10, 0, 140)
-btn3.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-btn3.Text = "Open All Door"
+btn3.BackgroundColor3 = Color3.fromRGB(89, 89, 89)
+btn3.Text = "⚡Speed Boost"
 btn3.TextColor3 = Color3.new(1,1,1)
 btn3.Font = Enum.Font.SourceSansBold
 btn3.TextSize = 14
 btn3.Parent = frame
 
 btn3.MouseButton1Click:Connect(function()
-	while task.wait(1) do
-	local args = {
-		buffer.fromstring("\v"),
-	}
-	game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable"):FireServer(unpack(args))
-	end
+    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+    if humanoid then
+		while task.wait(0.2) do
+        	humanoid.WalkSpeed = 32
+		end
+    end
 end)
 
 -- Discord
 local btn4 = Instance.new("TextButton")
 btn4.Size = UDim2.new(1, -20, 0, 40)
 btn4.Position = UDim2.new(0, 10, 0, 190)
-btn4.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+btn4.BackgroundColor3 = Color3.fromRGB(89, 89, 89)
 btn4.Text = "Join Discord Bro 🔥"
 btn4.TextColor3 = Color3.new(1,1,1)
 btn4.Font = Enum.Font.SourceSansBold
@@ -168,10 +134,8 @@ btn4.TextSize = 14
 btn4.Parent = frame
 
 btn4.MouseButton1Click:Connect(function()
-	if btn4.BackgroundColor3 == Color3.fromRGB(255, 0, 0) then
 		btn4.Text = "Copied"
 		setclipboard("https://discord.gg/592AGgZHm7")
         wait(2)
 		btn4.Text = "Join Discord Bro 🔥"
-	end
 end)
