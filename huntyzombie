@@ -2,6 +2,7 @@ local player = game:GetService("Players")
 local plr = player.LocalPlayer
 local gui = game:GetService("StarterGui")
 local char = plr.Character or plr.CharacterAdded:Wait()
+local RunService = game:GetService("RunService")
 local hrp = char:WaitForChild("HumanoidRootPart")
 
 local screenGui = Instance.new("ScreenGui")
@@ -68,6 +69,11 @@ toggleButton.MouseButton1Click:Connect(function()
 		hidden = false
 	end
 end)
+-- skill
+local platform = nil
+local connection = nil
+local toggled = false
+
 
 local Remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
 
@@ -109,28 +115,45 @@ local btn3 = Instance.new("TextButton")
 btn3.Size = UDim2.new(1, -20, 0, 40)
 btn3.Position = UDim2.new(0, 10, 0, 140)
 btn3.BackgroundColor3 = Color3.fromRGB(89, 89, 89)
-btn3.Text = "⚡Bring All Zombie"
+btn3.Text = "⚡Sky Jump"
 btn3.TextColor3 = Color3.new(1,1,1)
 btn3.Font = Enum.Font.SourceSansBold
 btn3.TextSize = 14
 btn3.Parent = frame
-
-btn3.MouseButton1Click:Connect(function()
-	
-	local bigModel = workspace:WaitForChild("Entities")
-	local childrenModels = {}
-	for _, obj in ipairs(bigModel:GetChildren()) do
-		if obj:IsA("Model") and obj:FindFirstChild("PrimaryPart") then
-			table.insert(childrenModels, obj)
+local function createPlatform()
+	if platform then
+		platform:Destroy()
+	end
+	platform = Instance.new("Part")
+	platform.Size = Vector3.new(6, 1, 6)
+	platform.Anchored = true
+	platform.CanCollide = true
+	platform.Transparency = 1 -- tàng hình
+	platform.Parent = workspace
+	platform.CFrame = hrp.CFrame * CFrame.new(0, -4, 0) -- ngay dưới chân
+end
+local function togglePlatform()
+	toggled = not toggled
+	if toggled then
+		hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 7, hrp.Position.Z)
+		createPlatform()
+		connection = RunService.RenderStepped:Connect(function()
+			if platform then
+				platform.CFrame = hrp.CFrame * CFrame.new(0, -4, 0)
+			end
+		end)
+	else
+		if connection then
+			connection:Disconnect()
+			connection = nil
+		end
+		if platform then
+			platform:Destroy()
+			platform = nil
 		end
 	end
-
-	if #childrenModels > 0 then
-		local randomModel = childrenModels[math.random(1, #childrenModels)]
-
-		hrp.CFrame = randomModel.PrimaryPart.CFrame + Vector3.new(0, 7, 0) -- +5 để không kẹt vào đất
-	end
-end)
+end
+btn3.MouseButton1Click:Connect(togglePlatform)
 
 -- Discord
 local btn4 = Instance.new("TextButton")
