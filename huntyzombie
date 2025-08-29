@@ -116,16 +116,20 @@ btn3.TextSize = 14
 btn3.Parent = frame
 
 btn3.MouseButton1Click:Connect(function()
-	hrp.CFrame = hrp.CFrame + Vector3.new(0, 5, 0)
-	hrp.Anchored = true
-    local entities = workspace:WaitForChild("Entities")
-	for _, obj in ipairs(entities:GetDescendants()) do
-		if obj:IsA("BasePart") then
-			obj.CFrame = hrp.CFrame * CFrame.new(0, -3, 0) -- gần chân (có thể chỉnh)
+	
+	local bigModel = workspace:WaitForChild("Entities")
+	local childrenModels = {}
+	for _, obj in ipairs(bigModel:GetChildren()) do
+		if obj:IsA("Model") and obj:FindFirstChild("PrimaryPart") then
+			table.insert(childrenModels, obj)
 		end
 	end
-	task.wait(5)
-	hrp.Anchored = false
+
+	if #childrenModels > 0 then
+		local randomModel = childrenModels[math.random(1, #childrenModels)]
+
+		hrp.CFrame = randomModel.PrimaryPart.CFrame + Vector3.new(0, 7, 0) -- +5 để không kẹt vào đất
+	end
 end)
 
 -- Discord
