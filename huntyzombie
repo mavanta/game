@@ -120,40 +120,21 @@ btn3.TextColor3 = Color3.new(1,1,1)
 btn3.Font = Enum.Font.SourceSansBold
 btn3.TextSize = 14
 btn3.Parent = frame
-local function createPlatform()
-	if platform then
-		platform:Destroy()
-	end
-	platform = Instance.new("Part")
-	platform.Size = Vector3.new(6, 1, 6)
-	platform.Anchored = true
-	platform.CanCollide = true
-	platform.Transparency = 1 -- tàng hình
-	platform.Parent = workspace
-	platform.CFrame = hrp.CFrame * CFrame.new(0, -1, 0) -- ngay dưới chân
-end
-local function togglePlatform()
-	toggled = not toggled
-	if toggled then
-		hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 7, hrp.Position.Z)
-		createPlatform()
-		connection = RunService.RenderStepped:Connect(function()
-			if platform then
-				platform.CFrame = hrp.CFrame * CFrame.new(0, -4, 0)
-			end
-		end)
+local onAir = false  -- trạng thái đang ở trên không
+
+local function toggleAir()
+	if not onAir then
+		-- Nếu đang ở dưới đất thì nâng lên + giữ yên
+		hrp.CFrame = hrp.CFrame + Vector3.new(0, 7, 0)
+		hrp.Anchored = true
+		onAir = true
 	else
-		if connection then
-			connection:Disconnect()
-			connection = nil
-		end
-		if platform then
-			platform:Destroy()
-			platform = nil
-		end
+		-- Nếu đang ở trên không thì thả xuống
+		hrp.Anchored = false
+		onAir = false
 	end
 end
-btn3.MouseButton1Click:Connect(togglePlatform)
+btn3.MouseButton1Click:Connect(toggleAir)
 
 -- Discord
 local btn4 = Instance.new("TextButton")
